@@ -29,7 +29,7 @@ def read_output(stream):
         line = stream.readline()
         if not line:
             break
-        bt.logging.trace(f"{__name__}: {line.strip()}")
+        print(f"{__name__}: {line.strip()}")
 
 
 def run(secret_key):
@@ -67,7 +67,7 @@ def run(secret_key):
             stdout_thread.join()
             stderr_thread.join()
         except subprocess.CalledProcessError as e:
-            bt.logging.error("An error occurred while generating the app.")
-            bt.logging.error(f"Error output:{e.stderr.decode()}")
+            print("An error occurred while generating the app.")
+            print(f"Error output:{e.stderr.decode()}")
     except Exception as e:
-        bt.logging.error(f"{e}")
+        print(f"{e}")

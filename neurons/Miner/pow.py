@@ -107,7 +107,7 @@ def run_hashcat(
             hashcat_extended_options,
         ]
         command_str = " ".join(shlex.quote(arg) for arg in command)
-        bt.logging.trace(command_str)
+        print(command_str)
 
         if execution_time and execution_time >= timeout:
             raise subprocess.TimeoutExpired(command, timeout)

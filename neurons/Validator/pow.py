@@ -56,7 +56,7 @@ def gen_password(available_chars=compute.pow_default_chars, length=compute.pow_m
         _hash, _salt = gen_hash(password)
         return password, _hash, _salt, _mask
     except Exception as e:
-        bt.logging.error(f"Error during PoW generation (gen_password): {e}")
+        print(f"Error during PoW generation (gen_password): {e}")
         return None
 
 

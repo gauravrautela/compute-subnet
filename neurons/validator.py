@@ -229,7 +229,7 @@ class Validator:
             force_update=force_update,
         )
         if success:
-            bt.logging.success(prefix="Prometheus served", sufix=f"<blue>Current version: {get_local_version()}</blue>")
+            print(prefix="Prometheus served", sufix=f"<blue>Current version: {get_local_version()}</blue>")
         else:
             bt.logging.error("Prometheus initialization failed")
         return success
@@ -262,7 +262,7 @@ class Validator:
                     pass
                 log += f" | {values_key}: {values_values}"
 
-            bt.logging.trace(log)
+            print(log)
 
     def sync_scores(self):
         # Fetch scoring stats
@@ -405,24 +405,24 @@ class Validator:
 
         # Blacklist coldkeys that are blacklisted by user
         if coldkey in self.blacklist_coldkeys:
-            bt.logging.trace(f"Blacklisted recognized coldkey {coldkey} - with hotkey: {hotkey}")
+            print(f"Blacklisted recognized coldkey {coldkey} - with hotkey: {hotkey}")
             return True
 
         # Blacklist coldkeys that are blacklisted by user or by set of hotkeys
         if hotkey in self.blacklist_hotkeys:
-            bt.logging.trace(f"Blacklisted recognized hotkey {hotkey}")
+            print(f"Blacklisted recognized hotkey {hotkey}")
             # Add the coldkey attached to this hotkey in the blacklisted coldkeys
             self.blacklist_hotkeys.add(coldkey)
             return True
 
         # Blacklist coldkeys that are exploiters
         if coldkey in self.exploiters_coldkeys:
-            bt.logging.trace(f"Blacklisted exploiter coldkey {coldkey} - with hotkey: {hotkey}")
+            print(f"Blacklisted exploiter coldkey {coldkey} - with hotkey: {hotkey}")
             return True
 
         # Blacklist hotkeys that are exploiters
         if hotkey in self.exploiters_hotkeys:
-            bt.logging.trace(f"Blacklisted exploiter hotkey {hotkey}")
+            print(f"Blacklisted exploiter hotkey {hotkey}")
             # Add the coldkey attached to this hotkey in the blacklisted coldkeys
             self.exploiters_hotkeys.add(coldkey)
             return True
@@ -620,7 +620,7 @@ class Validator:
             wait_for_inclusion=False,
         )
         if result:
-            bt.logging.success("✅ Successfully set weights.")
+            print("✅ Successfully set weights.")
         else:
             bt.logging.error("❌ Failed to set weights.")
 
@@ -770,7 +770,7 @@ class Validator:
             # If the user interrupts the program, gracefully exit.
             except KeyboardInterrupt:
                 self.db.close()
-                bt.logging.success("Keyboard interrupt detected. Exiting validator.")
+                print("Keyboard interrupt detected. Exiting validator.")
                 exit()
 
 

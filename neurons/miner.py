@@ -253,19 +253,19 @@ class Miner:
         synapse_type = type(synapse).__name__
 
         if len(self.whitelist_hotkeys) > 0 and hotkey not in self.whitelist_hotkeys:
-            bt.logging.trace(f"Not Blacklisting recognized hotkey {synapse.dendrite.hotkey}")
+            print(f"Not Blacklisting recognized hotkey {synapse.dendrite.hotkey}")
             return False, "Whitelisted hotkey"
 
         if hotkey not in self.metagraph.hotkeys:
             # Ignore requests from unrecognized entities.
-            bt.logging.trace(f"Blacklisting unrecognized hotkey {hotkey}")
+            print(f"Blacklisting unrecognized hotkey {hotkey}")
             return True, "Unrecognized hotkey"
 
         index = self.metagraph.hotkeys.index(hotkey)
         stake = self.metagraph.S[index].item()
 
         if stake < validator_permit_stake and not self.miner_whitelist_not_enough_stake:
-            bt.logging.trace(f"Not enough stake {stake}")
+            print(f"Not enough stake {stake}")
             return True, "Not enough stake!"
 
         if len(self.blacklist_hotkeys) > 0 and hotkey in self.blacklist_hotkeys:
@@ -284,13 +284,13 @@ class Miner:
                 f"Blacklisted a {synapse_type} request from an exploiter hotkey: {hotkey}",
             )
 
-        bt.logging.trace(f"Not Blacklisting recognized hotkey {synapse.dendrite.hotkey}")
+        print(f"Not Blacklisting recognized hotkey {synapse.dendrite.hotkey}")
         return False, "Hotkey recognized!"
 
     def base_priority(self, synapse: typing.Union[Specs, Allocate, Challenge]) -> float:
         caller_uid = self._metagraph.hotkeys.index(synapse.dendrite.hotkey)  # Get the caller index.
         priority = float(self._metagraph.S[caller_uid])  # Return the stake as the priority.
-        bt.logging.trace(f"Prioritizing {synapse.dendrite.hotkey} with value: ", priority)
+        print(f"Prioritizing {synapse.dendrite.hotkey} with value: ", priority)
         return priority
 
     # The blacklist function decides if a request should be ignored.
@@ -321,10 +321,10 @@ class Miner:
         if not synapse.checking and isinstance(synapse.output, dict) and synapse.output.get("status") is True:
             if synapse.timeline > 0:
                 self.wandb.update_allocated(synapse.dendrite.hotkey)
-                bt.logging.success(f"Allocation made by {synapse.dendrite.hotkey}.")
+                print(f"Allocation made by {synapse.dendrite.hotkey}.")
             else:
                 self.wandb.update_allocated(None)
-                bt.logging.success(f"De-allocation made by {synapse.dendrite.hotkey}.")
+                print(f"De-allocation made by {synapse.dendrite.hotkey}.")
 
     # This is the Allocate function, which decides the miner's response to a valid, high-priority request.
     def allocate(self, synapse: Allocate) -> Allocate:
@@ -511,7 +511,7 @@ class Miner:
             # If the user interrupts the program, gracefully exit.
             except KeyboardInterrupt:
                 self.axon.stop()
-                bt.logging.success("Keyboard interrupt detected. Exiting miner.")
+                print("Keyboard interrupt detected. Exiting miner.")
                 exit()
 
 

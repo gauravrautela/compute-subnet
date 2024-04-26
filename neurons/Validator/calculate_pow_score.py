@@ -122,5 +122,5 @@ def calc_score(response, hotkey, allocated_hotkeys, mock=False):
         normalized_score = normalize(final_score, 0, max_score)
         return normalized_score
     except Exception as e:
-        bt.logging.error(f"An error occurred while calculating score for the following hotkey - {hotkey}: {e}")
+        print(f"An error occurred while calculating score for the following hotkey - {hotkey}: {e}")
         return 0

@@ -100,28 +100,9 @@ class Miner:
         self.miner_whitelist_updated_threshold = self.config.miner_whitelist_updated_threshold
         self.miner_whitelist_not_enough_stake = self.config.miner_whitelist_not_enough_stake
         self.init_black_and_white_list()
-        logging_config = {
-            "version": 1,
-            "handlers": {
-            "console": {
-            "class": "logging.StreamHandler",
-            "stream": "ext://sys.stdout",
-            "formatter": "default",
-            },
-            },
-            "formatters": {
-            "default": {
-            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-            },
-            },
-            "root": {
-            "handlers": ["console"],
-            "level": "DEBUG",  # Adjust the log level as needed
-            },
-        }   
 
         # Set up logging with the provided configuration and directory.
-        bt.logging(logging_config=logging_config)
+        bt.logging(config=self.config, logging_dir=self.config.full_path)
         print(f"Running miner for subnet: {self.config.netuid} on network: {self.config.subtensor.chain_endpoint} with config:")
         # Log the configuration for reference.
         print(self.config)

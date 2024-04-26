@@ -103,28 +103,28 @@ class Miner:
 
         # Set up logging with the provided configuration and directory.
         bt.logging(config=self.config, logging_dir=self.config.full_path)
-        bt.logging.info(f"Running miner for subnet: {self.config.netuid} on network: {self.config.subtensor.chain_endpoint} with config:")
+        print(f"Running miner for subnet: {self.config.netuid} on network: {self.config.subtensor.chain_endpoint} with config:")
         # Log the configuration for reference.
-        bt.logging.info(self.config)
+        print(self.config)
 
         # Step 2: Build Bittensor miner objects
         # These classes are vital to interact and function within the Bittensor network.
-        bt.logging.info("Setting up bittensor objects.")
+        print("Setting up bittensor objects.")
 
         # Wallet holds cryptographic information, ensuring secure transactions and communication.
         self._wallet = bt.wallet(config=self.config)
-        bt.logging.info(f"Wallet: {self.wallet}")
+        print(f"Wallet: {self.wallet}")
 
         self.wandb = ComputeWandb(self.config, self.wallet, os.path.basename(__file__))
         self.wandb.update_specs()
 
         # Subtensor manages the blockchain connection, facilitating interaction with the Bittensor blockchain.
         self._subtensor = ComputeSubnetSubtensor(config=self.config)
-        bt.logging.info(f"Subtensor: {self.subtensor}")
+        print(f"Subtensor: {self.subtensor}")
 
         # Metagraph provides the network's current state, holding state about other participants in a subnet.
         self._metagraph = self.subtensor.metagraph(self.config.netuid)
-        bt.logging.info(f"Metagraph: {self.metagraph}")
+        print(f"Metagraph: {self.metagraph}")
 
         build_check_container('my-compute-subnet','sn27-check-container')
         has_docker, msg = check_docker_availability()
@@ -133,7 +133,7 @@ class Miner:
             bt.logging.error(msg)
             exit(1)
         else:
-            bt.logging.info(f"Docker is installed. Version: {msg}")
+            print(f"Docker is installed. Version: {msg}")
 
         check_cuda_availability()
 
@@ -174,12 +174,12 @@ class Miner:
 
         # Serve passes the axon information to the network + netuid we are hosting on.
         # This will auto-update if the axon port of external ip have changed.
-        bt.logging.info(f"Serving axon {self.axon} on network: {self.config.subtensor.chain_endpoint} with netuid: {self.config.netuid}")
+        print(f"Serving axon {self.axon} on network: {self.config.subtensor.chain_endpoint} with netuid: {self.config.netuid}")
 
         self.axon.serve(netuid=self.config.netuid, subtensor=self.subtensor)
 
         # Start  starts the miner's axon, making it active on the network.
-        bt.logging.info(f"Starting axon server on port: {self.config.axon.port}")
+        print(f"Starting axon server on port: {self.config.axon.port}")
         self.axon.start()
 
     @staticmethod
@@ -244,7 +244,7 @@ class Miner:
                 subnet_axon_version: bt.AxonInfo = self.metagraph.neurons[self.miner_subnet_uid].axon_info
                 current_version = __version_as_int__
                 if subnet_axon_version.version != current_version:
-                    bt.logging.info("Axon info version has been changed. Needs to restart axon...")
+                    print("Axon info version has been changed. Needs to restart axon...")
                     self.axon.stop()
                     self.init_axon()
 
@@ -397,7 +397,7 @@ class Miner:
 
                 valid_validators_version = [uid for uid, hotkey, version in valid_validators if version >= latest_version]
                 if percent(len(valid_validators_version), len(valid_validators)) <= self.miner_whitelist_updated_threshold:
-                    bt.logging.info(f"Less than {self.miner_whitelist_updated_threshold}% validators are currently using the last version. Allowing all.")
+                    print(f"Less than {self.miner_whitelist_updated_threshold}% validators are currently using the last version. Allowing all.")
                 else:
                     for uid, hotkey, version in valid_validators:
                         try:
@@ -410,7 +410,7 @@ class Miner:
                         except Exception:
                             bt.logging.error(f"exception in get_valid_hotkeys: {traceback.format_exc()}")
 
-                    bt.logging.info(f"Total valid validator hotkeys = {self.whitelist_hotkeys_version}")
+                    print(f"Total valid validator hotkeys = {self.whitelist_hotkeys_version}")
             except json.JSONDecodeError:
                 bt.logging.error(f"exception in get_valid_hotkeys: {traceback.format_exc()}")
         except Exception as _:
@@ -450,7 +450,7 @@ class Miner:
         time_next_updated_validator = None
         time_next_sync_status = None
 
-        bt.logging.info("Starting miner loop.")
+        print("Starting miner loop.")
         while True:
             try:
                 self.sync_local()
@@ -492,7 +492,7 @@ class Miner:
                     self.blocks_done.clear()
                     self.blocks_done.add(self.current_block)
 
-                bt.logging.info(
+                print(
                     f"Block: {self.current_block} | "
                     f"Stake: {self.metagraph.S[self.miner_subnet_uid]:.4f} | "
                     f"Trust: {self.metagraph.T[self.miner_subnet_uid]:.4f} | "

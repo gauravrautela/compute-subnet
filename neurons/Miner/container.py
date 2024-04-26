@@ -61,13 +61,13 @@ def kill_container():
         if running_container:
             running_container.stop()
             running_container.remove()
-            # bt.logging.info("Container was killed successfully")
+            # print("Container was killed successfully")
             return True
         else:
-            # bt.logging.info("Unable to find container")
+            # print("Unable to find container")
             return False
     except Exception as e:
-        # bt.logging.info(f"Error killing container {e}")
+        # print(f"Error killing container {e}")
         return False
 
 
@@ -126,7 +126,7 @@ def run_container(cpu_usage, ram_usage, hard_disk_usage, gpu_usage, public_key):
         # Check the status to determine if the container ran successfully
 
         if container.status == "created":
-            #bt.logging.info("Container was created successfully.")
+            #print("Container was created successfully.")
             info = {"username": "root", "password": password, "port": ssh_port}
             info_str = json.dumps(info)
             public_key = public_key.encode("utf-8")
@@ -143,10 +143,10 @@ def run_container(cpu_usage, ram_usage, hard_disk_usage, gpu_usage, public_key):
     
             return {"status": True, "info": encrypted_info}
         else:
-            # bt.logging.info(f"Container falied with status : {container.status}")
+            # print(f"Container falied with status : {container.status}")
             return {"status": False}
     except Exception as e:
-        # bt.logging.info(f"Error running container {e}")
+        # print(f"Error running container {e}")
         return {"status": False}
 
 
@@ -159,7 +159,7 @@ def check_container():
                 return True
         return False
     except Exception as e:
-        # bt.logging.info(f"Error checking container {e}")
+        # print(f"Error checking container {e}")
         return False
 
 

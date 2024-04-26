@@ -34,7 +34,7 @@ def read_output(stream):
 
 def run(secret_key):
     try:
-        bt.logging.info("💻 Generation of the secret key and script ...")
+        print("💻 Generation of the secret key and script ...")
 
         main_dir = os.path.dirname(os.path.abspath(__file__))
         script_name = os.path.join(main_dir, "script.py")

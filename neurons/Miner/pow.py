@@ -33,7 +33,7 @@ def check_cuda_availability():
 
     if torch.cuda.is_available():
         device_count = torch.cuda.device_count()
-        bt.logging.info(f"CUDA is available with {device_count} CUDA device(s)!")
+        print(f"CUDA is available with {device_count} CUDA device(s)!")
     else:
         bt.logging.warning(
             "CUDA is not available or not properly configured on this system."
@@ -86,7 +86,7 @@ def run_hashcat(
             execution_time=execution_time,
         )
     else:
-        bt.logging.info(f"{run_id}: ♻️  Challenge processing")
+        print(f"{run_id}: ♻️  Challenge processing")
 
     unknown_error_message = f"{run_id}: ❌ run_hashcat execution failed"
     try:
@@ -184,9 +184,9 @@ def run_miner_pow(
     hashcat_extended_options: str = "",
 ):
     if len(queue) <= 0:
-        bt.logging.info(f"{run_id}: 💻 Challenge received")
+        print(f"{run_id}: 💻 Challenge received")
     else:
-        bt.logging.info(f"{run_id}: ⏳ An instance running - added in the queue.")
+        print(f"{run_id}: ⏳ An instance running - added in the queue.")
 
     # Add to the queue the challenge id
     queue.append(run_id)

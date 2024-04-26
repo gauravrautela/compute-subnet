@@ -50,14 +50,14 @@ def register_allocation(timeline, device_requirement, public_key):
         run_status = run_container(cpu_usage, ram_usage, hard_disk_usage, gpu_usage, public_key)
 
         if run_status["status"]:
-            bt.logging.info("Successfully allocated container.")
+            print("Successfully allocated container.")
 
         # Kill container when it meets timeline
         start(timeline)
         return run_status
     
     except Exception as e:
-        bt.logging.info(f"Error allocating container {e}")
+        print(f"Error allocating container {e}")
     return {"status": False}
 
 
@@ -80,16 +80,16 @@ def deregister_allocation(public_key):
                 with open(file_path, 'w') as file:
                     file.truncate(0)  # Clear the file
                 
-                bt.logging.info("Successfully de-allocated container.")
+                print("Successfully de-allocated container.")
                 return {"status": True}
             else:
                 return {"status": False}
         else:
-            bt.logging.info(f"Permission denied.")
+            print(f"Permission denied.")
             return {"status": False}
 
     except Exception as e:
-        bt.logging.info(f"Error de-allocating container {e}")
+        print(f"Error de-allocating container {e}")
         return {"status": False}
 
 

@@ -116,19 +116,19 @@ def get_config_cli():
 # Generate ssh connection for given device requirements and timeline
 def allocate_container(config, device_requirement, timeline, public_key):
     wallet = bt.wallet(config=config)
-    bt.logging.info(f"Wallet: {wallet}")
+    print(f"Wallet: {wallet}")
 
     # The subtensor is our connection to the Bittensor blockchain.
     subtensor = bt.subtensor(config=config)
-    bt.logging.info(f"Subtensor: {subtensor}")
+    print(f"Subtensor: {subtensor}")
 
     # Dendrite is the RPC client; it lets us send messages to other nodes (axons) in the network.
     dendrite = bt.dendrite(wallet=wallet)
-    bt.logging.info(f"Dendrite: {dendrite}")
+    print(f"Dendrite: {dendrite}")
 
     # The metagraph holds the state of the network, letting us know about other miners.
     metagraph = subtensor.metagraph(config.netuid)
-    bt.logging.info(f"Metagraph: {metagraph}")
+    print(f"Metagraph: {metagraph}")
 
     # Instantiate the connection to the db
     db = ComputeDb()
@@ -183,19 +183,19 @@ def allocate_container(config, device_requirement, timeline, public_key):
 # Generate ssh connection for given device requirements and timeline
 def allocate_container_hotkey(config, hotkey, timeline, public_key):
     wallet = bt.wallet(config=config)
-    bt.logging.info(f"Wallet: {wallet}")
+    print(f"Wallet: {wallet}")
 
     # The subtensor is our connection to the Bittensor blockchain.
     subtensor = bt.subtensor(config=config)
-    bt.logging.info(f"Subtensor: {subtensor}")
+    print(f"Subtensor: {subtensor}")
 
     # Dendrite is the RPC client; it lets us send messages to other nodes (axons) in the network.
     dendrite = bt.dendrite(wallet=wallet)
-    bt.logging.info(f"Dendrite: {dendrite}")
+    print(f"Dendrite: {dendrite}")
 
     # The metagraph holds the state of the network, letting us know about other miners.
     metagraph = subtensor.metagraph(config.netuid)
-    bt.logging.info(f"Metagraph: {metagraph}")
+    print(f"Metagraph: {metagraph}")
 
     device_requirement = {"cpu": {"count": 1}, "gpu": {}, "hard_disk": {"capacity": 1073741824}, "ram": {"capacity": 1073741824}}
     device_requirement["gpu"] = {"count": 1, "capacity": config.gpu_size, "type": config.gpu_type}
@@ -238,7 +238,7 @@ def allocate(wandb):
         result_info = result["info"]
         private_key = private_key.encode("utf-8")
         decrypted_info_str = rsa.decrypt_data(private_key, base64.b64decode(result_info))
-        bt.logging.info(f"Registered successfully : {decrypted_info_str}, 'ip':{result['ip']}")
+        print(f"Registered successfully : {decrypted_info_str}, 'ip':{result['ip']}")
 
         # Iterate through the miner specs details to get gpu_name
         db = ComputeDb()
@@ -280,7 +280,7 @@ def allocate(wandb):
         update_allocation_wandb(wandb)
 
     else:
-        bt.logging.info(f"Failed : {result['msg']}")
+        print(f"Failed : {result['msg']}")
 
 
 def allocate_hotkey(wandb):
@@ -312,7 +312,7 @@ def allocate_hotkey(wandb):
         result_info = result["info"]
         private_key = private_key.encode("utf-8")
         decrypted_info_str = rsa.decrypt_data(private_key, base64.b64decode(result_info))
-        bt.logging.info(f"Registered successfully : {decrypted_info_str}, 'ip':{result['ip']}")
+        print(f"Registered successfully : {decrypted_info_str}, 'ip':{result['ip']}")
 
         info = json.loads(decrypted_info_str)
         info['ip'] = result['ip']
@@ -340,7 +340,7 @@ def allocate_hotkey(wandb):
         update_allocation_wandb(wandb)
 
     else:
-        bt.logging.info(f"Failed : {result['msg']}")
+        print(f"Failed : {result['msg']}")
 
 
 def deallocate(wandb):
@@ -350,23 +350,23 @@ def deallocate(wandb):
     config = get_config()
 
     wallet = bt.wallet(config=config)
-    bt.logging.info(f"Wallet: {wallet}")
+    print(f"Wallet: {wallet}")
 
     # The subtensor is our connection to the Bittensor blockchain.
     subtensor = bt.subtensor(config=config)
-    bt.logging.info(f"Subtensor: {subtensor}")
+    print(f"Subtensor: {subtensor}")
 
     # Dendrite is the RPC client; it lets us send messages to other nodes (axons) in the network.
     dendrite = bt.dendrite(wallet=wallet)
-    bt.logging.info(f"Dendrite: {dendrite}")
+    print(f"Dendrite: {dendrite}")
 
     # The metagraph holds the state of the network, letting us know about other miners.
     metagraph = subtensor.metagraph(config.netuid)
-    bt.logging.info(f"Metagraph: {metagraph}")
+    print(f"Metagraph: {metagraph}")
 
     wallet = bt.wallet(config=config)
     subtensor = bt.subtensor(config=config)
-    bt.logging.info(f"Subtensor: {subtensor}")
+    print(f"Subtensor: {subtensor}")
 
     # Dendrite is the RPC client; it lets us send messages to other nodes (axons) in the network.
     dendrite = bt.dendrite(wallet=wallet)
@@ -595,7 +595,7 @@ def update_allocation_wandb(wandb):
     try:
         wandb.update_allocated_hotkeys(hotkey_list)
     except Exception as e:
-        bt.logging.info(f"Error updating wandb : {e}")
+        print(f"Error updating wandb : {e}")
         return
     
 

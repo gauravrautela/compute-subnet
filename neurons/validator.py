@@ -146,38 +146,38 @@ class Validator:
 
         # Set up logging with the provided configuration and directory.
         bt.logging(config=self.config, logging_dir=self.config.full_path)
-        bt.logging.info(f"Running validator for subnet: {self.config.netuid} on network: {self.config.subtensor.chain_endpoint} with config:")
+        print(f"Running validator for subnet: {self.config.netuid} on network: {self.config.subtensor.chain_endpoint} with config:")
         # Log the configuration for reference.
-        bt.logging.info(self.config)
+        print(self.config)
 
         # Step 2: Build Bittensor validator objects
         # These are core Bittensor classes to interact with the network.
-        bt.logging.info("Setting up bittensor objects.")
+        print("Setting up bittensor objects.")
 
         # The wallet holds the cryptographic key pairs for the validator.
         self._wallet = bt.wallet(config=self.config)
-        bt.logging.info(f"Wallet: {self.wallet}")
+        print(f"Wallet: {self.wallet}")
 
         self.wandb = ComputeWandb(self.config, self.wallet, os.path.basename(__file__))
 
         # The subtensor is our connection to the Bittensor blockchain.
         self._subtensor = ComputeSubnetSubtensor(config=self.config)
-        bt.logging.info(f"Subtensor: {self.subtensor}")
+        print(f"Subtensor: {self.subtensor}")
 
         # Dendrite is the RPC client; it lets us send messages to other nodes (axons) in the network.
         self._dendrite = bt.dendrite(wallet=self.wallet)
-        bt.logging.info(f"Dendrite: {self.dendrite}")
+        print(f"Dendrite: {self.dendrite}")
 
         # The metagraph holds the state of the network, letting us know about other miners.
         self._metagraph = self.subtensor.metagraph(self.config.netuid)
-        bt.logging.info(f"Metagraph: {self.metagraph}")
+        print(f"Metagraph: {self.metagraph}")
 
         # Initialize the local db
         self.db = ComputeDb()
         self.miners: dict = select_miners(self.db)
 
         # Step 3: Set up initial scoring weights for validation
-        bt.logging.info("Building validation weights.")
+        print("Building validation weights.")
         self.uids: list = self.metagraph.uids.tolist()
         self.last_uids: list = self.uids.copy()
         self.init_scores()
@@ -221,7 +221,7 @@ class Validator:
         Register the prometheus information on metagraph.
         :return: bool
         """
-        bt.logging.info("Extrinsic prometheus information on metagraph.")
+        print("Extrinsic prometheus information on metagraph.")
         success = self.subtensor.serve_prometheus(
             wallet=self.wallet,
             port=bt.defaults.axon.port,
@@ -235,7 +235,7 @@ class Validator:
         return success
 
     def init_local(self):
-        bt.logging.info(f"🔄 Syncing metagraph with subtensor.")
+        print(f"🔄 Syncing metagraph with subtensor.")
         self._metagraph = self.subtensor.metagraph(self.config.netuid)
         self.uids = self.metagraph.uids.tolist()
 
@@ -245,7 +245,7 @@ class Validator:
         self.scores = self.scores * (self.metagraph.total_stake < 1.024e3)
         # Set the weight to zero for all nodes without assigned IP addresses.
         self.scores = self.scores * torch.Tensor(self.get_valid_tensors(metagraph=self.metagraph))
-        bt.logging.info(f"🔢 Initialized scores : {self.scores.tolist()}")
+        print(f"🔢 Initialized scores : {self.scores.tolist()}")
         self.sync_scores()
 
     @staticmethod
@@ -298,7 +298,7 @@ class Validator:
         # Update stats in wandb
         self.wandb.update_stats(self.stats)
 
-        bt.logging.info(f"🔢 Synced scores : {self.scores.tolist()}")
+        print(f"🔢 Synced scores : {self.scores.tolist()}")
 
     def sync_local(self):
         """
@@ -333,11 +333,11 @@ class Validator:
             for uid, axon in queryable_tuple_uids_axons:
                 if self.miners_items_to_set and (uid, axon.hotkey) not in self.miners_items_to_set:
                     try:
-                        bt.logging.info(f"❌ Miner {uid}-{self.miners[uid]} has been deregistered. Clean up old entries.")
+                        print(f"❌ Miner {uid}-{self.miners[uid]} has been deregistered. Clean up old entries.")
                         purge_miner_entries(self.db, uid, self.miners[uid])
                     except KeyError:
                         pass
-                    bt.logging.info(f"✅ Setting up new miner {uid}-{axon.hotkey}.")
+                    print(f"✅ Setting up new miner {uid}-{axon.hotkey}.")
                     update_miners(self.db, [(uid, axon.hotkey)]),
                     self.miners[uid] = axon.hotkey
         else:
@@ -390,7 +390,7 @@ class Validator:
         # Get the minimal miner version
         latest_version = version2number(get_remote_version(pattern="__minimal_miner_version__"))
         if percent(len(dict_filtered_axons), self.total_current_miners) <= self.validator_whitelist_updated_threshold:
-            bt.logging.info(f"Less than {self.validator_whitelist_updated_threshold}% miners are currently using the last version. Allowing all.")
+            print(f"Less than {self.validator_whitelist_updated_threshold}% miners are currently using the last version. Allowing all.")
             return dict_filtered_axons
 
         dict_filtered_axons_version = {}
@@ -480,7 +480,7 @@ class Validator:
     def execute_pow_request(self, uid, axon: bt.AxonInfo, _hash, _salt, mode, chars, mask, difficulty):
         dendrite = bt.dendrite(wallet=self.wallet)
         start_time = time.time()
-        bt.logging.info(f"Querying for {Challenge.__name__} - {uid}/{axon.hotkey}/{_hash}/{difficulty}")
+        print(f"Querying for {Challenge.__name__} - {uid}/{axon.hotkey}/{_hash}/{difficulty}")
         response = dendrite.query(
             axon,
             Challenge(
@@ -514,7 +514,7 @@ class Validator:
             # Miners to query this block
             self.queryable_for_specs = self.queryable.copy()
 
-        bt.logging.info(f"💻 Initialisation of the {Specs.__name__} queries...")
+        print(f"💻 Initialisation of the {Specs.__name__} queries...")
         # # Prepare app_data for benchmarking
         # # Generate secret key for app
         secret_key = Fernet.generate_key()
@@ -551,7 +551,7 @@ class Validator:
 
             try:
                 # Query the miners for benchmarking
-                bt.logging.info(f"💻 Hardware list of uids queried: {queryable_for_specs_uid}")
+                print(f"💻 Hardware list of uids queried: {queryable_for_specs_uid}")
                 responses = self.dendrite.query(queryable_for_specs_axon, Specs(specs_input=repr(app_data)), timeout=specs_timeout)
 
                 # Format responses and save them to benchmark_responses
@@ -575,31 +575,31 @@ class Validator:
                 traceback.print_exc()
 
         update_miner_details(self.db, list(results.keys()), list(results.values()))
-        bt.logging.info(f"✅ Hardware list responses:")
+        print(f"✅ Hardware list responses:")
 
         # Hardware list response hotfix 1.3.11
         db = ComputeDb()
         hardware_details = get_miner_details(db)
         for hotkey, specs in hardware_details.items():
-            bt.logging.info(f"{hotkey} - {specs}")
+            print(f"{hotkey} - {specs}")
         """
         for hotkey, specs in results.values():
-            bt.logging.info(f"{hotkey} - {specs}")
+            print(f"{hotkey} - {specs}")
         """
         self.finalized_specs_once = True
     
     def get_specs_wandb(self):
 
-        bt.logging.info(f"💻 Hardware list of uids queried (Wandb): {list(self._queryable_uids.keys())}")
+        print(f"💻 Hardware list of uids queried (Wandb): {list(self._queryable_uids.keys())}")
      
         specs_dict = self.wandb.get_miner_specs(self._queryable_uids) 
         # Update the local db with the data from wandb
         update_miner_details(self.db, list(specs_dict.keys()), list(specs_dict.values()))
 
         # Log the hotkey and specs
-        bt.logging.info(f"✅ Hardware list responses:")
+        print(f"✅ Hardware list responses:")
         for hotkey, specs in specs_dict.values():
-            bt.logging.info(f"{hotkey} - {specs}")
+            print(f"{hotkey} - {specs}")
 
         self.finalized_specs_once = True
 
@@ -608,7 +608,7 @@ class Validator:
         self.scores[self.scores < 0] = 0
         # Normalize the scores into weights
         weights: torch.FloatTensor = torch.nn.functional.normalize(self.scores, p=1.0, dim=0).float()
-        bt.logging.info(f"🏋️ Weight of miners : {weights.tolist()}")
+        print(f"🏋️ Weight of miners : {weights.tolist()}")
         # This is a crucial step that updates the incentive mechanism on the Bittensor blockchain.
         # Miners with higher scores (or weights) receive a larger share of TAO rewards on this subnet.
         result = self.subtensor.set_weights(
@@ -645,7 +645,7 @@ class Validator:
         time_next_set_weights = None
         time_next_hardware_info = None
 
-        bt.logging.info("Starting validator loop.")
+        print("Starting validator loop.")
         while True:
             try:
                 self.sync_local()
@@ -701,9 +701,9 @@ class Validator:
 
                         # Logs benchmarks for the validators
                         if len(self.pow_benchmark_success) > 0:
-                            bt.logging.info("✅ Results success benchmarking:")
+                            print("✅ Results success benchmarking:")
                             for uid, benchmark in self.pow_benchmark_success.items():
-                                bt.logging.info(f"{uid}: {benchmark}")
+                                print(f"{uid}: {benchmark}")
                         else:
                             bt.logging.warning("❌ Benchmarking: All miners failed. An issue occurred.")
 
@@ -747,7 +747,7 @@ class Validator:
                         self.blocks_done.clear()
                         self.blocks_done.add(self.current_block)
 
-                bt.logging.info(
+                print(
                     (
                         f"Block:{self.current_block} | "
                         f"Stake:{self.metagraph.S[self.validator_subnet_uid]} | "

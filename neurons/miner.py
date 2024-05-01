@@ -455,6 +455,7 @@ class Miner:
         time_next_sync_status = None
 
         print("Starting miner loop.")
+        miner_status.set(1)
         while True:
             try:
                 self.sync_local()
@@ -490,7 +491,7 @@ class Miner:
                         "Emission": float(self.metagraph.E[self.miner_subnet_uid].numpy()),
                     }
                     self.wandb.log_chain_data(chain_data)
-                    miner_status.set(1)
+
 
                 # Periodically clear some vars
                 if len(self.blocks_done) > 1000:

@@ -54,6 +54,9 @@ from neurons.Miner.allocate import check_allocation, register_allocation
 from neurons.Miner.pow import check_cuda_availability, run_miner_pow
 from neurons.Miner.specs import RequestSpecsProcessor
 from neurons.Validator.script import check_docker_availability
+from prometheus_client import start_http_server, Gauge
+
+miner_status = Gauge('miner_status', 'State of the miner')
 
 
 class Miner:
@@ -130,7 +133,7 @@ class Miner:
         has_docker, msg = check_docker_availability()
 
         if not has_docker:
-            bt.logging.error(msg)
+            print(msg)
             exit(1)
         else:
             print(f"Docker is installed. Version: {msg}")
@@ -145,7 +148,8 @@ class Miner:
         check_hashcat_version(hashcat_path=self.hashcat_path)
 
         self.uids: list = self.metagraph.uids.tolist()
-
+        print("Start prometheus on port 8000 ")
+        start_http_server(8000)
         self.sync_status()
         self.init_axon()
 
@@ -390,7 +394,7 @@ class Miner:
                 latest_version = version2number(get_remote_version(pattern="__minimal_validator_version__"))
 
                 if latest_version is None:
-                    bt.logging.error(f"Github API call failed or version string is incorrect!")
+                    print(f"Github API call failed or version string is incorrect!")
                     return
 
                 valid_validators = self.get_valid_validator()
@@ -408,13 +412,13 @@ class Miner:
 
                             bt.logging.debug(f"Version signature mismatch for hotkey : {hotkey}")
                         except Exception:
-                            bt.logging.error(f"exception in get_valid_hotkeys: {traceback.format_exc()}")
+                            print(f"exception in get_valid_hotkeys: {traceback.format_exc()}")
 
                     print(f"Total valid validator hotkeys = {self.whitelist_hotkeys_version}")
             except json.JSONDecodeError:
-                bt.logging.error(f"exception in get_valid_hotkeys: {traceback.format_exc()}")
+                print(f"exception in get_valid_hotkeys: {traceback.format_exc()}")
         except Exception as _:
-            bt.logging.error(traceback.format_exc())
+            print(traceback.format_exc())
 
     def get_valid_validator_uids(self):
         valid_uids = []
@@ -486,6 +490,7 @@ class Miner:
                         "Emission": float(self.metagraph.E[self.miner_subnet_uid].numpy()),
                     }
                     self.wandb.log_chain_data(chain_data)
+                    miner_status.set(1)
 
                 # Periodically clear some vars
                 if len(self.blocks_done) > 1000:
@@ -505,7 +510,7 @@ class Miner:
                 time.sleep(5)
 
             except (RuntimeError, Exception) as e:
-                bt.logging.error(e)
+                print(e)
                 traceback.print_exc()
 
             # If the user interrupts the program, gracefully exit.

@@ -106,6 +106,8 @@ class Miner:
 
         # Set up logging with the provided configuration and directory.
         bt.logging(config=self.config, logging_dir=self.config.full_path)
+        bt.logging.set_debug(self.config.logging.debug)
+        bt.logging.set_trace(self.config.logging.trace)
         print(f"Running miner for subnet: {self.config.netuid} on network: {self.config.subtensor.chain_endpoint} with config:")
         # Log the configuration for reference.
         print(self.config)
@@ -406,11 +408,11 @@ class Miner:
                     for uid, hotkey, version in valid_validators:
                         try:
                             if version >= latest_version:
-                                bt.logging.debug(f"Version signature match for hotkey : {hotkey}")
+                                print(f"Version signature match for hotkey : {hotkey}")
                                 self.whitelist_hotkeys_version.add(hotkey)
                                 continue
 
-                            bt.logging.debug(f"Version signature mismatch for hotkey : {hotkey}")
+                            print(f"Version signature mismatch for hotkey : {hotkey}")
                         except Exception:
                             print(f"exception in get_valid_hotkeys: {traceback.format_exc()}")
 
